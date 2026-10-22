@@ -1,0 +1,1054 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: ace1dbf040684615aadb18dda8f5bb4c
+      name: Storage
+  templates:
+    - uuid: e684f324e5b249a495a31d72f07e25d8
+      template: 'VPLEX SNMP'
+      name: 'VPLEX SNMP'
+      groups:
+        - name: Storage
+      items:
+        - uuid: 3d9b5102b48642d5995351e7c2d09a71
+          name: 'Director A - VPLEX added Read Latency'
+          type: CALCULATED
+          key: 'vplex.added.latency.read[A]'
+          value_type: FLOAT
+          units: '!ms'
+          params: 'last(//vplex.fe.latency.read[A])-last(//vplex.be.latency.read[A])'
+          tags:
+            - tag: component
+              value: diagnostic
+            - tag: director
+              value: A
+          triggers:
+            - uuid: 12c7edcfaa5e40e58d62e6c75b0aebb4
+              expression: 'min(/VPLEX SNMP/vplex.added.latency.read[A],15m)>5'
+              name: 'VPLEX: Director A - Latencia agregada por VPLEX en lectura (>5ms)'
+              priority: WARNING
+              description: 'VPLEX esta agregando mas de 5ms de latencia propia en lecturas (FE - BE) en el director A. El cuello de botella esta DENTRO de VPLEX, no en el array. Revisar cola FE, CPU del director y distribucion de carga.'
+        - uuid: e7fd640b4e4d4005ab6478c589578fc8
+          name: 'Director B - VPLEX added Read Latency'
+          type: CALCULATED
+          key: 'vplex.added.latency.read[B]'
+          value_type: FLOAT
+          units: '!ms'
+          params: 'last(//vplex.fe.latency.read[B])-last(//vplex.be.latency.read[B])'
+          tags:
+            - tag: component
+              value: diagnostic
+            - tag: director
+              value: B
+          triggers:
+            - uuid: b2ba47af0f83498886ba68e883fc1bd3
+              expression: 'min(/VPLEX SNMP/vplex.added.latency.read[B],15m)>5'
+              name: 'VPLEX: Director B - Latencia agregada por VPLEX en lectura (>5ms)'
+              priority: WARNING
+              description: 'VPLEX esta agregando mas de 5ms de latencia propia en lecturas (FE - BE) en el director B. El cuello de botella esta DENTRO de VPLEX, no en el array. Revisar cola FE, CPU del director y distribucion de carga.'
+        - uuid: 41fb5b462e34462f8f03817d2e23668e
+          name: 'Director A - VPLEX added Write Latency'
+          type: CALCULATED
+          key: 'vplex.added.latency.write[A]'
+          value_type: FLOAT
+          units: '!ms'
+          params: 'last(//vplex.fe.latency.write[A])-last(//vplex.be.latency.write[A])'
+          tags:
+            - tag: component
+              value: diagnostic
+            - tag: director
+              value: A
+          triggers:
+            - uuid: 5520f0e031694303a1412f66bf45acd4
+              expression: 'min(/VPLEX SNMP/vplex.added.latency.write[A],15m)>5'
+              name: 'VPLEX: Director A - Latencia agregada por VPLEX en escritura (>5ms)'
+              priority: WARNING
+              description: 'VPLEX esta agregando mas de 5ms de latencia propia en escrituras (FE - BE) en el director A. Revisar write-back cache y, si es Metro, el link WAN.'
+        - uuid: 726e7b5c3881495293a6f13cb7428649
+          name: 'Director B - VPLEX added Write Latency'
+          type: CALCULATED
+          key: 'vplex.added.latency.write[B]'
+          value_type: FLOAT
+          units: '!ms'
+          params: 'last(//vplex.fe.latency.write[B])-last(//vplex.be.latency.write[B])'
+          tags:
+            - tag: component
+              value: diagnostic
+            - tag: director
+              value: B
+          triggers:
+            - uuid: 59b0e769d11c4ed3952b7cc0809ca66e
+              expression: 'min(/VPLEX SNMP/vplex.added.latency.write[B],15m)>5'
+              name: 'VPLEX: Director B - Latencia agregada por VPLEX en escritura (>5ms)'
+              priority: WARNING
+              description: 'VPLEX esta agregando mas de 5ms de latencia propia en escrituras (FE - BE) en el director B. Revisar write-back cache y, si es Metro, el link WAN.'
+        - uuid: 34436850b6cf4e7e8ee4301f765ed43a
+          name: 'BE Director A - Bytes Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.7.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.bytes.read[A]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: df7c9cd98eca4b1b9b7f2a5ce9eb3755
+          name: 'BE Director B - Bytes Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.7.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.bytes.read[B]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: b0bc927b08f54108b7e76039b705cb38
+          name: 'BE Director A - Bytes Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.8.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.bytes.write[A]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: 0cd9c6841fc34b15aded7d6cbf849204
+          name: 'BE Director B - Bytes Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.8.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.bytes.write[B]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: d46838e48fad4412b84aeb91e0731054
+          name: 'BE Director A - Avg Read Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.5.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.latency.read[A]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: efcc6473e039432d93bcb630060d183c
+          name: 'BE Director B - Avg Read Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.5.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.latency.read[B]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: 8561ebd35dc94161901ce406ee713f85
+          name: 'BE Director A - Avg Write Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.6.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.latency.write[A]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: a89a85f3508447209032466e647d7d73
+          name: 'BE Director B - Avg Write Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.6.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.latency.write[B]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: 99d35523112d4644ab6b7b3ae6f436da
+          name: 'BE Director A - Ops Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.1.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.ops.read[A]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: 6c4cb2c9aefa4587a8c71c7568f04ad2
+          name: 'BE Director B - Ops Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.1.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.ops.read[B]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: 63c0b4af54194a6fbb97808944986a30
+          name: 'BE Director A - Ops Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.2.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.be.ops.write[A]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: A
+        - uuid: 51d6034fa4c0481aa401df87ae0d5751
+          name: 'BE Director B - Ops Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.6.1.2.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.be.ops.write[B]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: backend
+            - tag: director
+              value: B
+        - uuid: b256c6849dfd4e55a3f2c9c9e80c47a0
+          name: 'Director A - CPU idle'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.3.1.1.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.dir.cpu.idle[A]'
+          units: '%'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: A
+          triggers:
+            - uuid: 055954b0a0d445418d2a80cbc3d7d528
+              expression: 'nodata(/VPLEX SNMP/vplex.dir.cpu.idle[A],5m)=1'
+              name: 'VPLEX: Director A no responde'
+              priority: DISASTER
+              description: 'El director A dejo de responder SNMP durante 5 minutos. Verificar estado del director y conectividad con el Management Server.'
+        - uuid: bc888d4323c6496d8e1aa0cae98cbf2c
+          name: 'Director B - CPU idle'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.3.1.1.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.dir.cpu.idle[B]'
+          units: '%'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: B
+          triggers:
+            - uuid: 48cd73db91324b509fe623ebd983a97b
+              expression: 'nodata(/VPLEX SNMP/vplex.dir.cpu.idle[B],5m)=1'
+              name: 'VPLEX: Director B no responde'
+              priority: DISASTER
+              description: 'El director B dejo de responder SNMP durante 5 minutos. Verificar estado del director y conectividad con el Management Server.'
+        - uuid: bf3d38a0166c4834b345d6b08aecbad3
+          name: 'Director A - CPU used'
+          type: CALCULATED
+          key: 'vplex.dir.cpu.used[A]'
+          units: '%'
+          params: '100-last(//vplex.dir.cpu.idle[A])'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: A
+          triggers:
+            - uuid: b1ea172951ae4aeeb64a53a4ba8a86a7
+              expression: 'min(/VPLEX SNMP/vplex.dir.cpu.used[A],15m)>85'
+              name: 'VPLEX: Director A - CPU saturada (>85%)'
+              priority: HIGH
+              description: 'CPU del director A por encima del 85% de forma sostenida durante 15 minutos. Con el director saturado, la latencia de todos los volumenes se degrada.'
+        - uuid: a7881d589dd84ba4aa0c7ca2b2e76155
+          name: 'Director B - CPU used'
+          type: CALCULATED
+          key: 'vplex.dir.cpu.used[B]'
+          units: '%'
+          params: '100-last(//vplex.dir.cpu.idle[B])'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: B
+          triggers:
+            - uuid: 6477db502f2b49ada46383d9d56c759d
+              expression: 'min(/VPLEX SNMP/vplex.dir.cpu.used[B],15m)>85'
+              name: 'VPLEX: Director B - CPU saturada (>85%)'
+              priority: HIGH
+              description: 'CPU del director B por encima del 85% de forma sostenida durante 15 minutos. Con el director saturado, la latencia de todos los volumenes se degrada.'
+        - uuid: 3b14f263086e424ab0059534c74a2118
+          name: 'Director A - Heap used'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.2.1.1.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.dir.heap[A]'
+          units: '%'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: A
+          triggers:
+            - uuid: 265232a3378941f5a2ba06956638adb9
+              expression: 'min(/VPLEX SNMP/vplex.dir.heap[A],1h)>85'
+              name: 'VPLEX: Director A - Heap alto (>85%)'
+              priority: WARNING
+              description: 'Heap del director A por encima del 85% durante 1 hora. Revisar tendencia: un crecimiento sostenido puede indicar presion de memoria.'
+        - uuid: 97c0db285b2c4701b415c1d6c23c9231
+          name: 'Director B - Heap used'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.2.1.1.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.dir.heap[B]'
+          units: '%'
+          tags:
+            - tag: component
+              value: health
+            - tag: director
+              value: B
+          triggers:
+            - uuid: 049a72b7cdf14d3583e13d472506083f
+              expression: 'min(/VPLEX SNMP/vplex.dir.heap[B],1h)>85'
+              name: 'VPLEX: Director B - Heap alto (>85%)'
+              priority: WARNING
+              description: 'Heap del director B por encima del 85% durante 1 hora. Revisar tendencia: un crecimiento sostenido puede indicar presion de memoria.'
+        - uuid: 02f021d739e9471e894c2a38be0bd86b
+          name: 'FE Director A - Bytes Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.7.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.bytes.read[A]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: 044be65a29f24cf5aa78a70b2a000d8e
+          name: 'FE Director B - Bytes Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.7.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.bytes.read[B]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: 96cf7b5a76554f57ae3698ced22da239
+          name: 'FE Director A - Bytes Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.8.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.bytes.write[A]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: d18496d751164a0fa066e623df04ce22
+          name: 'FE Director B - Bytes Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.8.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.bytes.write[B]'
+          value_type: FLOAT
+          units: '!MB/s'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+            - type: MULTIPLIER
+              parameters:
+                - '1.0E-6'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: 0e43a40983714e72a96bed60e3826255
+          name: 'FE Director A - Avg Read Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.5.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.latency.read[A]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: b9a07a8364114cf5b606891f035f17ff
+          name: 'FE Director B - Avg Read Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.5.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.latency.read[B]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: ce10ff4970f24b8c9db44d3f99d7f873
+          name: 'FE Director A - Avg Write Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.6.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.latency.write[A]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: 32a144a645be4950831951d20fe1cdaa
+          name: 'FE Director B - Avg Write Latency'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.6.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.latency.write[B]'
+          value_type: FLOAT
+          units: '!ms'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.001'
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: 05fc0ac1ea8147e2acd8974f49c930ce
+          name: 'FE Director A - Ops Active'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.4.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.ops.active[A]'
+          units: '!ops'
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: ce70f58c8cb344cbb71cbd8d75326877
+          name: 'FE Director B - Ops Active'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.4.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.ops.active[B]'
+          units: '!ops'
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: 119b3adbf0c24c0da00969356a7dc3c7
+          name: 'FE Director A - Ops Queued'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.3.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.ops.queued[A]'
+          units: '!ops'
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+          triggers:
+            - uuid: ad63ac79b80d4d498449c05abc7acf8c
+              expression: 'min(/VPLEX SNMP/vplex.fe.ops.queued[A],10m)>0'
+              name: 'VPLEX: Director A - Cola en puertos FE'
+              priority: HIGH
+              description: 'El director A tiene operaciones encoladas en el front-end durante 10 minutos. Indicador temprano de saturacion: VPLEX no da abasto con los pedidos entrantes.'
+        - uuid: a8940c76ca7447a9a69b805397253958
+          name: 'FE Director B - Ops Queued'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.3.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.ops.queued[B]'
+          units: '!ops'
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+          triggers:
+            - uuid: 82496418ff0b402dadd0c78112382690
+              expression: 'min(/VPLEX SNMP/vplex.fe.ops.queued[B],10m)>0'
+              name: 'VPLEX: Director B - Cola en puertos FE'
+              priority: HIGH
+              description: 'El director B tiene operaciones encoladas en el front-end durante 10 minutos. Indicador temprano de saturacion: VPLEX no da abasto con los pedidos entrantes.'
+        - uuid: de161f9970ef47c0863c92243d01eeb1
+          name: 'FE Director A - Ops Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.1.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.ops.read[A]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: 153b1e79be7b48a2a77c171ef5108b8f
+          name: 'FE Director B - Ops Read'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.1.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.ops.read[B]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+        - uuid: c1967d47b0ea4cbea9426bfd61f3a1f5
+          name: 'FE Director A - Ops Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.2.{$VPLEX.DIR.A.IP}'
+          key: 'vplex.fe.ops.write[A]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: A
+        - uuid: dd2f1a8938ae4aa9b4b8a3f828834a87
+          name: 'FE Director B - Ops Write'
+          type: SNMP_AGENT
+          snmp_oid: '1.3.6.1.4.1.1139.21.2.2.4.1.2.{$VPLEX.DIR.B.IP}'
+          key: 'vplex.fe.ops.write[B]'
+          value_type: FLOAT
+          units: '!ops'
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+              error_handler: DISCARD_VALUE
+          tags:
+            - tag: component
+              value: frontend
+            - tag: director
+              value: B
+      discovery_rules:
+        - uuid: 4ae22bd0c54c4f28820f6a98d0582873
+          name: 'VPLEX BE Port Discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#PORTNAME},1.3.6.1.4.1.1139.21.2.2.7.1.2]'
+          key: vplex.be.port.discovery
+          delay: 1h
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_AFTER
+          enabled_lifetime: 1d
+          item_prototypes:
+            - uuid: 6f44d132655d403eaec60028d5043029
+              name: 'BE Port {#PORTNAME} - Bytes Read'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.7.1.9.{#SNMPINDEX}'
+              key: 'vplex.be.port.bytes.read[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: be-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 8677d8000d5e4f2291c6279437187b8b
+              name: 'BE Port {#PORTNAME} - Bytes Write'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.7.1.10.{#SNMPINDEX}'
+              key: 'vplex.be.port.bytes.write[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: be-port
+                - tag: port
+                  value: '{#PORTNAME}'
+        - uuid: d9fcbb01d8a24e8e8dc0df4a34b1cf0d
+          name: 'VPLEX FE Port Discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#PORTNAME},1.3.6.1.4.1.1139.21.2.2.5.1.2]'
+          key: vplex.fe.port.discovery
+          delay: 1h
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_AFTER
+          enabled_lifetime: 1d
+          item_prototypes:
+            - uuid: 0f286025a3b643078d696c105a2a32b5
+              name: 'FE Port {#PORTNAME} - Bytes Read'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.9.{#SNMPINDEX}'
+              key: 'vplex.fe.port.bytes.read[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 0f946771cd1b42f6b413c3803ca0e612
+              name: 'FE Port {#PORTNAME} - Bytes Write'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.10.{#SNMPINDEX}'
+              key: 'vplex.fe.port.bytes.write[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 34cd33e249cb4362bb3364a9d69bb252
+              name: 'FE Port {#PORTNAME} - Avg Read Latency'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.7.{#SNMPINDEX}'
+              key: 'vplex.fe.port.latency.read[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!ms'
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.001'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 2b0313468fbb49fe9cdb094c376189d8
+              name: 'FE Port {#PORTNAME} - Avg Write Latency'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.8.{#SNMPINDEX}'
+              key: 'vplex.fe.port.latency.write[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!ms'
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.001'
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 98b02dad91434df8bfa5395db358563d
+              name: 'FE Port {#PORTNAME} - Ops Active'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.6.{#SNMPINDEX}'
+              key: 'vplex.fe.port.ops.active[{#PORTNAME}]'
+              units: '!ops'
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: b83863288a49421ab020e146d39fe5bc
+              name: 'FE Port {#PORTNAME} - Ops Read'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.3.{#SNMPINDEX}'
+              key: 'vplex.fe.port.ops.read[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!ops'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 0deea8b40e0445c898f12b2e46b6e30d
+              name: 'FE Port {#PORTNAME} - Ops Total'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.11.{#SNMPINDEX}'
+              key: 'vplex.fe.port.ops.total[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!ops'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+            - uuid: 58fcb3eba4554283935ba9ff0933bf25
+              name: 'FE Port {#PORTNAME} - Ops Write'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.5.1.4.{#SNMPINDEX}'
+              key: 'vplex.fe.port.ops.write[{#PORTNAME}]'
+              value_type: FLOAT
+              units: '!ops'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+              tags:
+                - tag: component
+                  value: fe-port
+                - tag: port
+                  value: '{#PORTNAME}'
+        - uuid: 62c854004ebb4db99076832abe27e3bd
+          name: 'VPLEX VVol Aggregated Discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#VOLNAME},1.3.6.1.4.1.1139.21.2.2.8.1.1]'
+          key: vplex.vvol.agg.discovery
+          delay: 1h
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_AFTER
+          enabled_lifetime: 1d
+          item_prototypes:
+            - uuid: b20dba7ab2d947be958ded0e4856b6b0
+              name: 'VVol {#VOLNAME} - IOPS (total cluster)'
+              type: CALCULATED
+              key: 'vplex.vvol.iops.total[{#VOLNAME}]'
+              value_type: FLOAT
+              units: '!iops'
+              params: 'sum(last_foreach(/*/vplex.vvol.iops[{#VOLNAME},*]))'
+            - uuid: 217bd6802fca428db03b6e48e1034d32
+              name: 'VVol {#VOLNAME} - Avg Read Latency (avg cluster)'
+              type: CALCULATED
+              key: 'vplex.vvol.latency.read.avg[{#VOLNAME}]'
+              value_type: FLOAT
+              units: '!ms'
+              params: 'avg(last_foreach(/*/vplex.vvol.latency.read[{#VOLNAME},*]))'
+              trigger_prototypes:
+                - uuid: 55482aabc4754fbf97f1068ddd317c6d
+                  expression: 'min(/VPLEX SNMP/vplex.vvol.latency.read.avg[{#VOLNAME}],10m)>150'
+                  name: 'VPLEX: VVol {#VOLNAME} - Latencia de lectura alta (>150ms)'
+                  priority: AVERAGE
+                  description: 'Latencia de lectura del volumen {#VOLNAME} por encima de 150ms sostenida durante 10 minutos. Comparar contra ''VPLEX added latency'' para determinar si el origen es el array o VPLEX.'
+            - uuid: 149278eba55842cab2829b54c57b59b8
+              name: 'VVol {#VOLNAME} - Avg Write Latency (avg cluster)'
+              type: CALCULATED
+              key: 'vplex.vvol.latency.write.avg[{#VOLNAME}]'
+              value_type: FLOAT
+              units: '!ms'
+              params: 'avg(last_foreach(/*/vplex.vvol.latency.write[{#VOLNAME},*]))'
+              trigger_prototypes:
+                - uuid: 35719a928f374f519705d59dbb581cbf
+                  expression: 'min(/VPLEX SNMP/vplex.vvol.latency.write.avg[{#VOLNAME}],10m)>150'
+                  name: 'VPLEX: VVol {#VOLNAME} - Latencia de escritura alta (>150ms)'
+                  priority: AVERAGE
+                  description: 'Latencia de escritura del volumen {#VOLNAME} por encima de 150ms sostenida durante 10 minutos.'
+            - uuid: b6e0cb3853634135a525bf69e8aa534c
+              name: 'VVol {#VOLNAME} - Read bytes (total cluster)'
+              type: CALCULATED
+              key: 'vplex.vvol.read.bytes.total[{#VOLNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              params: 'sum(last_foreach(/*/vplex.vvol.read.bytes[{#VOLNAME},*]))'
+            - uuid: cad012fb15c3454a8f9e16801958eb65
+              name: 'VVol {#VOLNAME} - Write bytes (total cluster)'
+              type: CALCULATED
+              key: 'vplex.vvol.write.bytes.total[{#VOLNAME}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              params: 'sum(last_foreach(/*/vplex.vvol.write.bytes[{#VOLNAME},*]))'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var rows = JSON.parse(value);
+                  var seen = {};
+                  var out = [];
+                  rows.forEach(function (r) {
+                      var name = r['{#VOLNAME}'];
+                      if (!seen[name]) {
+                          seen[name] = true;
+                          out.push({'{#VOLNAME}': name});
+                      }
+                  });
+                  return JSON.stringify(out);
+        - uuid: eaa6dd6593e44b1fb8d34662fba50bf4
+          name: 'VPLEX Virtual Volume Discovery'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#VOLNAME},1.3.6.1.4.1.1139.21.2.2.8.1.1]'
+          key: vplex.vvol.discovery
+          delay: 1h
+          lifetime: 30d
+          enabled_lifetime_type: DISABLE_AFTER
+          enabled_lifetime: 1d
+          item_prototypes:
+            - uuid: 376b946587104ccfba55017f39b7d444
+              name: 'VVol {#VOLNAME} [dir {#DIRECTORIP}] - IOPS'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.8.1.3.{#SNMPINDEX}'
+              key: 'vplex.vvol.iops[{#VOLNAME},{#DIRECTORIP}]'
+              value_type: FLOAT
+              units: '!iops'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                  error_handler: DISCARD_VALUE
+                - type: IN_RANGE
+                  parameters:
+                    - '0'
+                    - ''
+                  error_handler: DISCARD_VALUE
+            - uuid: 21bb33ce16f44e73aa2ac7ac3fc2ac2a
+              name: 'VVol {#VOLNAME} [dir {#DIRECTORIP}] - Avg Read Latency (ms)'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.8.1.6.{#SNMPINDEX}'
+              key: 'vplex.vvol.latency.read[{#VOLNAME},{#DIRECTORIP}]'
+              value_type: FLOAT
+              units: '!ms'
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.001'
+                  error_handler: DISCARD_VALUE
+            - uuid: b365d2c3e35541af81e6a45c8de5da31
+              name: 'VVol {#VOLNAME} [dir {#DIRECTORIP}] - Avg Write Latency (ms)'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.8.1.7.{#SNMPINDEX}'
+              key: 'vplex.vvol.latency.write[{#VOLNAME},{#DIRECTORIP}]'
+              value_type: FLOAT
+              units: '!ms'
+              preprocessing:
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.001'
+                  error_handler: DISCARD_VALUE
+            - uuid: 84a8cd8d1b9b485f802b1f705c5a3fda
+              name: 'VVol {#VOLNAME} [dir {#DIRECTORIP}] - Read bytes'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.8.1.4.{#SNMPINDEX}'
+              key: 'vplex.vvol.read.bytes[{#VOLNAME},{#DIRECTORIP}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+            - uuid: 88ef54a483174330a5aa74a45f64a3a2
+              name: 'VVol {#VOLNAME} [dir {#DIRECTORIP}] - Write bytes'
+              type: SNMP_AGENT
+              snmp_oid: '1.3.6.1.4.1.1139.21.2.2.8.1.5.{#SNMPINDEX}'
+              key: 'vplex.vvol.write.bytes[{#VOLNAME},{#DIRECTORIP}]'
+              value_type: FLOAT
+              units: '!MB/s'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '1.0E-6'
+                  error_handler: DISCARD_VALUE
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var rows = JSON.parse(value);
+                  rows.forEach(function (r) {
+                      var idx = r['{#SNMPINDEX}'];
+                      var m = idx.match(/^(\d+\.\d+\.\d+\.\d+)/);
+                      r['{#DIRECTORIP}'] = m ? m[1] : '';
+                  });
+                  return JSON.stringify(rows);
+      macros:
+        - macro: '{$VPLEX.DIR.A.IP}'
+          value: 10.0.0.1
+          description: 'IP del director A. Sobreescribir por host.'
+        - macro: '{$VPLEX.DIR.B.IP}'
+          value: 10.0.0.2
+          description: 'IP del director B. Sobreescribir por host.'
