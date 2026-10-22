@@ -13,7 +13,7 @@ Template de Zabbix (SNMP) y dashboard de Grafana para **guardar el histórico** 
 | `zabbix/template_vplex_snmp.yaml` | Template `VPLEX SNMP` para Zabbix 7.0: ítems, reglas de descubrimiento (LLD), triggers y macros |
 | `grafana/dashboard_VPLEX.json` | Dashboard de Grafana con estado de directores, diagnóstico FE vs BE, carga, balanceo de puertos y una fila por volumen |
 
-**No incluye** el archivo `VPLEX-MIB.mib` de Dell. Consultá los términos de licencia de Dell antes de redistribuirlo. Los OIDs que usa el template son los de la MIB (base `1.3.6.1.4.1.1139.21`) y se pueden consultar en tu propio equipo.
+**No incluye** el archivo `VPLEX-MIB.mib` de Dell. Los OIDs que usa el template son los de la MIB (base `1.3.6.1.4.1.1139.21`) y se pueden consultar en tu propio equipo.
 
 ## Vista previa
 
